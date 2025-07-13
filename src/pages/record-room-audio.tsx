@@ -2,8 +2,20 @@
 
 import { Button } from '@/components/ui/button'
 import { useRef, useState } from 'react'
+import { Navigate, useParams } from 'react-router-dom'
+
+const isRecordingSupported =
+  !!navigator.mediaDevices &&
+  typeof navigator.mediaDevices.getUserMedia === 'function' &&
+  typeof window.MediaRecorder === 'function'
+
+type RoomParams = {
+  roomId: string
+}
 
 export function RecordRoomAudio() {
+  const params = useParams<RoomParams>()
+
   const [isRecording, setIsRecording] = useState(false)
   const recorder = useRef<MediaRecorder | null>(null)
 
@@ -15,11 +27,19 @@ export function RecordRoomAudio() {
     }
   }
 
-  const isRecordingSupported =
-    !!navigator.mediaDevices &&
-    typeof navigator.mediaDevices.getUserMedia === 'function' &&
-    typeof window.MediaRecorder === 'function'
+  async function uploadAudio(audio: Blob) {
+    const formData = new FormData()
+    formData.append('file', audio, 'audio.webm')
 
+    const response = await fetch(`http://localhost:3333/rooms/${params.roomId}/audio`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    const result = await response.json()
+
+    console.log(result)
+  }
   async function startRecording() {
     if (!isRecordingSupported) {
       alert('Seu navegador não suporta gravação de áudio')
@@ -27,6 +47,10 @@ export function RecordRoomAudio() {
     }
 
     setIsRecording(true)
+
+    if (!params.roomId) {
+      return <Navigate replace to="/" />
+    }
 
     const audio = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -43,7 +67,7 @@ export function RecordRoomAudio() {
 
     recorder.current.ondataavailable = (event) => {
       if (event.data.size > 0) {
-        console.log(event.data)
+        uploadAudio(event.data)
       }
     }
 
