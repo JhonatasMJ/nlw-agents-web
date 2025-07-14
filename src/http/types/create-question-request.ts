@@ -1,5 +1,3 @@
 export type CreateQuestionRequest = {
-  
-   question: string;
-
+  question: string
 }

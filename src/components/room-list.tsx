@@ -1,17 +1,15 @@
-import { dayjs } from '@/lib/dayjs'
-import { Badge } from './ui/badge'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useRooms } from '@/http/use-rooms'
+import { dayjs } from '@/lib/dayjs'
+import { Badge } from './ui/badge'
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from './ui/card'
-import { useRooms } from '@/http/use-rooms'
-
-
 
 export function RoomList() {
   const { data, isLoading } = useRooms()
@@ -19,7 +17,7 @@ export function RoomList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Salas Recentes</CardTitle>
+        <CardTitle>Salas recentes <span className="text-orange-500">.</span></CardTitle>
         <CardDescription>
           Acesso rápido para as salas criadas recentemente
         </CardDescription>
@@ -28,28 +26,30 @@ export function RoomList() {
         {isLoading && (
           <p className="text-muted-foreground text-sm">Carregando salas...</p>
         )}
+
         {data?.map((room) => {
           return (
             <Link
               className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
               key={room.id}
-              to={`room/${room.id}`}
+              to={`/room/${room.id}`}
             >
               <div className="flex flex-1 flex-col gap-1">
                 <h3 className="font-medium">{room.name}</h3>
+
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge className="text-xs" variant="secondary">
                     {dayjs(room.createdAt).toNow()}
                   </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    {room.questionsCount} Pergunta (s)
+                  <Badge className="text-xs" variant="secondary">
+                    {room.questionsCount} pergunta(s)
                   </Badge>
                 </div>
               </div>
 
-              <span className="flex items-center gap-2 text-sm">
+              <span className="flex items-center gap-1 rounded-md bg-orange-500 p-2 text-sm text-white hover:bg-orange-600">
                 Entrar
-                <ArrowRight className="size-3" />
+                <ArrowRight className="size-4" />
               </span>
             </Link>
           )
